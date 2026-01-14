@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chicken Army vs Craft Fox</title>
+
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+
+  <style>
+    body {
+      font-family: monospace;
+      background: #111;
+      color: #f5f5f5;
+      padding: 20px;
+    }
+    button {
+      margin: 5px;
+      padding: 10px;
+    }
+    #output {
+      white-space: pre-line;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🐔 Chicken Army vs Craft Fox</h1>
+
+<div id="output"></div>
+
+<div id="controls">
+  <button py-click="move('North')">North</button>
+  <button py-click="move('South')">South</button>
+  <button py-click="move('East')">East</button>
+  <button py-click="move('West')">West</button>
+</div>
+
+<div id="actions"></div>
+
+<py-script>
+import random
+
+# ---------------- GAME DATA ----------------
+
+rooms = {
+    'Coop': {'name': 'Coop', 'South': 'The Shed', 'West': 'Playhouse', 'East': 'Greenhouse', 'North': 'Garden', 'item': 'No item'},
+    'Barn': {'name': 'Barn', 'South': 'Greenhouse', 'item': 'Scout Wingtip'},
+    'Garden': {'name': 'Garden', 'East': 'Old Truck', 'South': 'Coop', 'item': 'Capt. Cluck'},
+    'Old Truck': {'name': 'Old Truck', 'West': 'Garden', 'item': 'Private Peck'},
+    'Playhouse': {'name': 'Playhouse', 'East': 'Coop', 'South': 'Woodpile', 'item': 'Col. Plume'},
+    'Woodpile': {'name': 'Woodpile', 'North': 'Playhouse', 'item': 'Villain Reynard the Fox'},
+    'The Shed': {'name': 'The Shed', 'North': 'Coop', 'East': 'Under the Tractor', 'item': 'No item'},
+    'Greenhouse': {'name': 'Greenhouse', 'North': 'Barn', 'West': 'Coop', 'item': 'Boom-Boom Beak'},
+    'Under the Tractor': {'name': 'Under the Tractor', 'West': 'The Shed', 'item': 'Agent Fluff'}
+}
+
+current_room = rooms['Coop']
+chicken_army = []
+
+output = Element("output")
+actions = Element("actions")
+
+# ---------------- UI HELPERS ----------------
+
+def write(text):
+    output.write(output.element.innerText + text + "\n")
+
+def clear_actions():
+    actions.element.innerHTML = ""
+
+# ---------------- GAME LOGIC ----------------
+
+def start_game():
+    write("A fox has attacked the chicken coop again!")
+    write("Gather all 6 chickens to defeat Reynard the Fox.")
+    write(f"You begin in the {current_room['name']}.\n")
+
+def move(direction):
+    global current_room
+    clear_actions()
+
+    if direction in current_room:
+        current_room = rooms[current_room[direction]]
+        write(f"\nYou move {direction}.")
+        write(f"You are now in: {current_room['name']}")
+        write(f"Current Recruits: {chicken_army}")
+        check_item()
+    else:
+        write("You can't go that way.")
+
+def check_item():
+    item = current_room['item']
+    if item == 'No item':
+        write("No chicken here.")
+        return
+
+    write(f"You found {item}!")
+
+    actions.element.innerHTML = f"""
+        <button py-click="take_chicken()">Take Chicken</button>
+        <button py-click="leave_chicken()">Leave</button>
+    """
+
+def take_chicken():
+    item = current_room['item']
+    if item not in chicken_army:
+        chicken_army.append(item)
+        write(f"{item} has joined your army!")
+
+        if len(chicken_army) >= 6:
+            write("\nYou are ready to face Reynard the Fox!")
+            battle()
+    clear_actions()
+
+def leave_chicken():
+    write("You leave the chicken behind.")
+    clear_actions()
+
+def battle():
+    write("\n⚔️ Battle Begins!")
+    outcome = random.choice(["win", "lose"])
+    if outcome == "win":
+        write("The chicken army has prevailed! YOU WIN!")
+    else:
+        write("The fox was too clever... You lost.")
+
+# ---------------- START ----------------
+
+start_game()
+</py-script>
+
+</body>
+</html>
